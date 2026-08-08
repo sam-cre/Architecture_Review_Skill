@@ -1,7 +1,7 @@
-# Change-Cost Traces — <project name>
+# Change-Cost Traces - <project name>
 
 <!--
-.architecture-review/change-cost-traces.md — Phase 4.
+.architecture-review/change-cost-traces.md - Phase 4.
 Section 1 (history) is mandatory. Section 2 (hypotheticals) is admissible only
 after section 1 has been attempted and come up empty, and every scenario needs
 a named anchor. rules.md §4 Gate 2.
@@ -11,11 +11,11 @@ a named anchor. rules.md §4 Gate 2.
 
 ---
 
-## 0. Commit selection — audit trail
+## 0. Commit selection - audit trail
 
 <!--
 rules.md §4 "Which history counts". Recording rejections is what makes the
-selection falsifiable — otherwise a reader cannot tell whether the sample was
+selection falsifiable - otherwise a reader cannot tell whether the sample was
 chosen or found.
 
 Admissible: new feature or variant · domain rule change · new entity/field
@@ -30,8 +30,8 @@ Inadmissible: formatting · renames · dep bumps · framework upgrades ·
 | Commit | Subject | Verdict | Why |
 |---|---|---|---|
 | `a3f9c21` | add Adyen provider | **admissible** | new variant of an existing concept |
-| `77b201e` | bump react 17→18 | rejected | framework upgrade — touches everything by nature |
-| `c40de8a` | prettier across src | rejected | formatting — touches everything, means nothing |
+| `77b201e` | bump react 17→18 | rejected | framework upgrade - touches everything by nature |
+| `c40de8a` | prettier across src | rejected | formatting - touches everything, means nothing |
 | `9f1a3d2` | fix tax rounding for EU | **admissible** | domain rule change |
 
 <!-- Fewer than 3 admissible? Say so here and do NOT substitute chores.
@@ -41,7 +41,7 @@ Inadmissible: formatting · renames · dep bumps · framework upgrades ·
 
 ## 1. What changes have already cost
 
-### Trace A — <what the change did, one line>
+### Trace A - <what the change did, one line>
 
 **Commit:** `<sha>` · <date> · `<subject>`
 **Command:** `git show --stat <sha>`
@@ -53,16 +53,16 @@ Inadmissible: formatting · renames · dep bumps · framework upgrades ·
 | **Amplification** | **<incidental ÷ essential>** | |
 
 **Essential**
-- `path/to/file.ext` — <what it did>
+- `path/to/file.ext` - <what it did>
 
 **Incidental** ← *this list is the finding*
-- `path/to/other.ext:44` — <why it had to change, though it holds no feature logic>
+- `path/to/other.ext:44` - <why it had to change, though it holds no feature logic>
 
 **Feeds:** <ARCH-00N as Gate 2(a) evidence>
 
 ---
 
-### Trace B — …
+### Trace B - …
 
 ---
 
@@ -94,20 +94,20 @@ architecture's toll booths and are usually the review's highest-value findings.
 
 **History searched:** `<command>` → <what it found or did not find>
 
-### Scenario 1 — <the named change>
+### Scenario 1 - <the named change>
 
 **Anchor:** <TODO at file:line | issue/roadmap the user pointed at | existing near-duplicate | user statement in Phase 0>
 
 <!-- NOT an anchor: "codebases usually need to scale", "you might want to swap
      databases someday", "what if you had 100x traffic", best-practice reasoning. -->
 
-**Files that must change** — traced by opening them and following imports, not estimated:
+**Files that must change** - traced by opening them and following imports, not estimated:
 
 | File | Why | Essential? |
 |---|---|---|
 | `src/billing/stripe.ts:1-240` | the logic itself | yes |
 | `src/api/checkout.ts:56-71` | constructs Stripe directly | no |
-| `prisma/schema.prisma:88` | `stripeChargeId` column — needs a migration | no |
+| `prisma/schema.prisma:88` | `stripeChargeId` column - needs a migration | no |
 
 **Essential: <N> · Incidental: <N> · Amplification: <N>×**
 
@@ -121,13 +121,13 @@ architecture's toll booths and are usually the review's highest-value findings.
 
 | Dimension that grows | What breaks first (`file:line`) | Why | Rough magnitude | Currently near it? |
 |---|---|---|---|---|
-| Rows per tenant | `src/reports/build.ts:70` | loads the full result set into memory before filtering | somewhere past a few thousand | no — largest tenant ~200 |
+| Rows per tenant | `src/reports/build.ts:70` | loads the full result set into memory before filtering | somewhere past a few thousand | no - largest tenant ~200 |
 
 **Order of magnitude only.** "Past a few thousand rows" is honest; "at 4,200 rows" is fabrication.
 
 **Architectural, not performance:** the test is *would fixing this require changing the shape of the code, or just the contents of one function?* Only the former belongs here.
 
-**Team scalability** counts too — the toll-booth files above are merge-conflict funnels and review bottlenecks, already measured.
+**Team scalability** counts too - the toll-booth files above are merge-conflict funnels and review bottlenecks, already measured.
 
 ---
 

@@ -1,8 +1,24 @@
 # Architecture Review Skill
 
-An evidence-based architecture review for any codebase. It answers one question: **"is this actually designed well?"**: and it is built to refuse to answer it with opinion.
+An evidence-based architecture review for any codebase. It answers one question: **"is this actually designed well?"** and it is built to refuse to answer it with opinion.
 
 Not a bug hunter, not a linter, not a security scanner.
+
+## Install
+
+**Windows**
+```powershell
+.\install.ps1
+```
+
+**macOS / Linux**
+```bash
+./install.sh
+```
+
+Add `-Link` (Windows) or `--link` (Mac/Linux) to symlink instead of copy, so edits to this repo apply immediately.
+
+Installs to `~/.claude/skills/architecture-review/`. Available in every project after. Restart Claude after installing.
 
 ## Use
 

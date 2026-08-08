@@ -1,4 +1,4 @@
-# Differential Protocol — `diff` Mode
+# Differential Protocol - `diff` Mode
 
 _Load when `.architecture-review/` already exists from a prior run, or when the user asks whether the architecture has improved. Hold `rules.md`._
 
@@ -11,11 +11,11 @@ Do not re-run the full review. Re-running from scratch produces a differently-wo
 ## 1. Load the prior run
 
 Read from `.architecture-review/`:
-- `metrics-baseline.json` — the numbers to compare against
-- `findings.json` — what was open, and at what priority
-- `project-profile.md` — the prior tier and exclusions
+- `metrics-baseline.json` - the numbers to compare against
+- `findings.json` - what was open, and at what priority
+- `project-profile.md` - the prior tier and exclusions
 
-If `metrics-baseline.json` is missing or predates the schema, say so and run `standard` instead. **Do not compare against numbers you cannot verify were measured the same way** — different tool versions and different history windows produce incomparable results.
+If `metrics-baseline.json` is missing or predates the schema, say so and run `standard` instead. **Do not compare against numbers you cannot verify were measured the same way** - different tool versions and different history windows produce incomparable results.
 
 Establish the comparison range:
 
@@ -53,9 +53,9 @@ Each one gets exactly one verdict, and **each verdict needs evidence**:
 
 | Verdict | Requires |
 |---|---|
-| **Resolved** | Re-read the location. Confirm the structure changed. `[read]` line required — a metric moving is not proof a specific finding was fixed. |
+| **Resolved** | Re-read the location. Confirm the structure changed. `[read]` line required - a metric moving is not proof a specific finding was fixed. |
 | **Partially addressed** | Some call sites fixed, some not. Name both. |
-| **Unchanged** | Location still reads as before. Re-check severity — Change Frequency may have moved, which moves severity without anyone touching the code. |
+| **Unchanged** | Location still reads as before. Re-check severity - Change Frequency may have moved, which moves severity without anyone touching the code. |
 | **Worsened** | Same defect, larger blast radius or higher churn. Quantify it. |
 | **Moot** | The code was deleted or restructured such that the finding no longer applies. |
 | **Not re-checked** | Out of the diff range and not worth re-reading. Say so; don't silently carry it forward. |
@@ -64,7 +64,7 @@ Each one gets exactly one verdict, and **each verdict needs evidence**:
 
 ---
 
-## 4. Look for new findings — scoped
+## 4. Look for new findings - scoped
 
 Run Phases 2–3 **scoped to what changed**: files in the diff range, plus their direct dependents.
 
@@ -73,8 +73,8 @@ git diff --name-only <prior-commit>..HEAD
 ```
 
 Plus two full-repo checks that are cheap and catch regressions the diff scope would miss:
-- **New cycles** — the graph is global; a new edge anywhere can create a cycle between untouched files.
-- **New toll booths** — re-run the Phase 4 Step 1 file-frequency query over the new range. A file that has become a bottleneck since the last review is the most valuable thing this mode finds.
+- **New cycles** - the graph is global; a new edge anywhere can create a cycle between untouched files.
+- **New toll booths** - re-run the Phase 4 Step 1 file-frequency query over the new range. A file that has become a bottleneck since the last review is the most valuable thing this mode finds.
 
 Everything else stays in the diff scope. A full re-review is `standard` mode, not this.
 
@@ -88,9 +88,9 @@ Weigh:
 - **Were the prior *Fix now* items addressed?** This is the strongest signal, more than any metric.
 - **Did new debt land in the same places**, or in new ones? Recurrence in the same module means the earlier fix treated a symptom.
 - **Is amplification rising or falling?** Re-trace one recent feature (Phase 4 Step 1) and compare its incidental-file count to the prior traces. This is the truest measure available of whether the design improved.
-- **Did growth outpace structure?** A codebase 40% larger with the same module count has modules 40% larger — and the tier may have moved. Re-check it.
+- **Did growth outpace structure?** A codebase 40% larger with the same module count has modules 40% larger - and the tier may have moved. Re-check it.
 
-Say plainly which of: **improved**, **held steady**, **drifted**, or **regressed** — and name the one thing most responsible.
+Say plainly which of: **improved**, **held steady**, **drifted**, or **regressed** - and name the one thing most responsible.
 
 ---
 
@@ -99,7 +99,7 @@ Say plainly which of: **improved**, **held steady**, **drifted**, or **regressed
 Overwrite `architecture-review.md` with the diff report; keep the same section order as the full template so the two are readable side by side, with the delta table and direction-of-travel paragraph inserted after **The answer**.
 
 Update `findings.json`:
-- Carry forward unresolved findings with their **original IDs**. Never renumber — stable IDs are the whole point of the machine artifact.
+- Carry forward unresolved findings with their **original IDs**. Never renumber - stable IDs are the whole point of the machine artifact.
 - Set `status` per §3 above.
 - New findings continue the ID sequence.
 

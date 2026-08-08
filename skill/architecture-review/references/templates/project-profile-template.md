@@ -1,6 +1,6 @@
-# Project Profile — <name>
+# Project Profile - <name>
 
-<!-- .architecture-review/project-profile.md — written in Phase 0, read by every later phase. -->
+<!-- .architecture-review/project-profile.md - written in Phase 0, read by every later phase. -->
 
 **Reviewed:** <date> · **Mode:** <quick|standard|deep|pr|diff>
 
@@ -41,9 +41,9 @@ in its first paragraph. "is this overengineered" / "why is this so hard to chang
 
 ### Schema
 
-**Authoritative definition:** <`prisma/schema.prisma` | `migrations/` | entity classes | none — no persistence>
+**Authoritative definition:** <`prisma/schema.prisma` | `migrations/` | entity classes | none - no persistence>
 
-**Table inventory** — the corpus for the Phase 2 §6 database census. Without this the census is pattern-guessing and its findings cap at Medium.
+**Table inventory** - the corpus for the Phase 2 §6 database census. Without this the census is pattern-guessing and its findings cap at Medium.
 
 | Table / collection | Owning module (if evident) |
 |---|---|
@@ -74,14 +74,14 @@ boundary, not as build performance.
 What the project claims to be, and where that claim comes from:
   1. ARCHITECTURE.md, ADRs, README section
   2. Folder names asserting a pattern (domain/, adapters/, usecases/)
-  3. Enforcement config — dependency-cruiser, import-linter, ArchUnit, Nx tags,
+  3. Enforcement config - dependency-cruiser, import-linter, ArchUnit, Nx tags,
      eslint no-restricted-imports  ← strongest signal
   4. The dominant convention in the code
 
-If (3) exists, note any rules that are disabled, warn-level, or carry exemptions —
+If (3) exists, note any rules that are disabled, warn-level, or carry exemptions -
 an exemption list is a boundary that already failed, and it is dated.
 
-If nothing asserts a pattern, write "none asserted" — the codebase then has no
+If nothing asserts a pattern, write "none asserted" - the codebase then has no
 architectural contract to violate, and findings must stand on cost alone.
 -->
 
@@ -100,23 +100,23 @@ T4 Large system     ~>100k LOC · 20+ modules     → enforced boundaries, contr
 LOC is the weakest signal here. Boundary counts win when they disagree.
 -->
 
-**Modules:** <N> — counted by rung <1 deployment artifact | 2 package manifest | 3 public entry point | 4 boundary rule | none matched → 1 module>
+**Modules:** <N> - counted by rung <1 deployment artifact | 2 package manifest | 3 public entry point | 4 boundary rule | none matched → 1 module>
 
 <!--
 Mechanical definition, phase-0-recon.md Step 3. A folder whose files are imported
-individually is a NAMESPACE, not a module — utils/ with 50 functions counts as 1.
+individually is a NAMESPACE, not a module - utils/ with 50 functions counts as 1.
 A framework routing directory is not a set of modules; count the deployable.
-If no rung matches, the codebase has exactly one module — at T3+ that is itself
+If no rung matches, the codebase has exactly one module - at T3+ that is itself
 a first-class finding.
 -->
 
-**Graded on:** <structural count | LOC | both agree> — <modules, deployables, packages, exported surface, dependency count>
+**Graded on:** <structural count | LOC | both agree> - <modules, deployables, packages, exported surface, dependency count>
 
 **Reasoning:** <the numbers that put it here>
 
-**Density adjustment:** <e.g. "shifted up — 9k LOC of Rust is more system than the band assumes", or "none">
+**Density adjustment:** <e.g. "shifted up - 9k LOC of Rust is more system than the band assumes", or "none">
 
-**Trajectory adjustment:** <e.g. "T2 by size but reviewed as early T3 — 3 commits/day and 4 new contributors this quarter", or "none">
+**Trajectory adjustment:** <e.g. "T2 by size but reviewed as early T3 - 3 commits/day and 4 new contributors this quarter", or "none">
 
 > Every finding is graded against this tier. A recommendation that only makes
 > sense one tier up fails Gate 5 and is discarded.
@@ -125,13 +125,13 @@ a first-class finding.
 
 ## Exclusions
 
-**In-flight migrations** — <both sides named; the deprecated side is never a finding>
+**In-flight migrations** - <both sides named; the deprecated side is never a finding>
 
-**Accepted tradeoffs** — <what the user already knows about and has accepted>
+**Accepted tradeoffs** - <what the user already knows about and has accepted>
 
-**Out of scope** — <directories the user excluded; generated/vendored/build are excluded by default>
+**Out of scope** - <directories the user excluded; generated/vendored/build are excluded by default>
 
-**Known deadline artifacts** — <code the user identified as knowingly rushed>
+**Known deadline artifacts** - <code the user identified as knowingly rushed>
 
 ---
 
@@ -151,5 +151,5 @@ a first-class finding.
 <!--
 Anything you had to decide without confirmation, stated plainly so the user can
 correct it. If intent was unclear and one question would resolve it, ask it in
-Phase 0 — then record the answer here.
+Phase 0 - then record the answer here.
 -->

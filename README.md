@@ -20,7 +20,7 @@ Add `-Link` (Windows) or `--link` (Mac/Linux) to symlink instead of copy, so edi
 
 Installs to `~/.claude/skills/architecture-review/`. Available in every project after. Restart Claude after installing.
 
-## Use
+## Usage
 
 From any project directory:
 

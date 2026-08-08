@@ -1,0 +1,39 @@
+# Architecture Review Skill
+
+Evidence-based architecture and design-quality review. When the user asks to review, audit, or critique a codebase's architecture, design, or structure — "is this designed well", "is this overengineered", "why is this so hard to change" — follow `skill/architecture-review/SKILL.md`. Not for bugs or security.
+
+## Path resolution
+
+`references/...` paths resolve relative to **`skill/architecture-review/`**, not the reviewed project. Output goes to `.architecture-review/` in the reviewed project root. Different trees — do not conflate.
+
+## Loading order
+
+1. `skill/architecture-review/SKILL.md`
+2. `skill/architecture-review/references/rules.md` — load once, applies to every phase
+3. `references/phases/phase-N-*.md` — one at a time, never pre-loaded
+4. `references/domains/*.md` — only what Phase 0 matched; release after Phase 3
+5. `references/tooling/*.md` — as needed in Phase 1
+
+## Modes
+
+`quick` 0,1,2,7 · `standard` 0–7 (default) · `deep` 0–7 wider · `pr` diff-scoped · `diff` see `references/differential-protocol.md`
+
+## Phases
+
+0 recon · 1 evidence · 2 structure · 3 abstraction · 4 change-cost · 5 adversarial · 6 plan · 7 report
+
+## Rules
+
+1. Read-only — never modify or install into the reviewed project; only `.architecture-review/` is written. No fix phase.
+2. Measure before you opine — Phase 1 forms no judgments.
+3. Never conclude "decoupled" from import edges alone — static graphs miss event buses, shared tables, string-keyed registries. Phase 2 mandates an implicit-coupling census.
+4. Every finding passes the 5-Point Cost Gate (`references/rules.md` §4). No demonstrated cost, no finding.
+5. History before hypotheticals — projected changes need a failed git search and a named anchor; admissible commit classes are defined in §4.
+6. Tagged evidence ledger on every finding (§2); ≥1 `[read]` line; `[infer]`-only is discarded.
+7. Confidence derives from the ledger, not judgment (§3) — ceilings C1–C5, lowest wins.
+8. Never state an uncomputed metric or an unread line (§8). No scores or grades.
+9. A clean review is a valid outcome.
+
+## Where the rules live
+
+Confidence tiers, the Cost Gate, the evidence ledger, the severity/priority model, the finding schema, and the do-not-report list live in `skill/architecture-review/references/rules.md` §1–§9. **Load it once. Do not restate or re-derive them.**

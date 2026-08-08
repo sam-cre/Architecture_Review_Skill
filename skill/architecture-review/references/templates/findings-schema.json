@@ -1,0 +1,332 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.invalid/architecture-review/findings-schema.json",
+  "title": "Architecture Review Findings",
+  "description": "Machine-readable output of an architecture-review run. Hand-off artifact for scoped refactoring sessions and input to diff mode.",
+  "type": "object",
+  "required": ["schema_version", "generated", "project", "coverage", "findings"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "generated": { "type": "string", "format": "date-time" },
+    "mode": { "enum": ["quick", "standard", "deep", "pr", "diff"] },
+
+    "project": {
+      "type": "object",
+      "required": ["type", "tier", "languages"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string", "description": "e.g. backend-service, spa, library, monorepo" },
+        "tier": {
+          "enum": ["T1", "T2", "T3", "T4"],
+          "description": "Ceremony budget from Phase 0. Findings are graded against this."
+        },
+        "tier_reasoning": { "type": "string" },
+        "languages": { "type": "array", "items": { "type": "string" } },
+        "domains_loaded": { "type": "array", "items": { "type": "string" } },
+        "asserted_architecture": {
+          "type": ["string", "null"],
+          "description": "The pattern the project claims, or null if none is asserted."
+        },
+        "exclusions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "In-flight migrations, accepted tradeoffs, scoped-out paths."
+        }
+      }
+    },
+
+    "coverage": {
+      "type": "object",
+      "description": "Phase 7 coverage statement. Required — a review with unstated limits overstates itself.",
+      "required": ["measured", "reasoned", "not_reached", "history_window_days"],
+      "additionalProperties": false,
+      "properties": {
+        "history_window_days": { "type": ["integer", "null"] },
+        "measured": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["measurement", "tool", "ran"],
+            "additionalProperties": false,
+            "properties": {
+              "measurement": { "type": "string" },
+              "tool": { "type": "string" },
+              "version": { "type": "string" },
+              "ran": { "type": "boolean" },
+              "fallback_used": { "type": ["string", "null"] },
+              "note": { "type": "string" }
+            }
+          }
+        },
+        "reasoned": { "type": "array", "items": { "type": "string" } },
+        "not_reached": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id", "title", "category", "locations", "blast_radius", "change_frequency",
+          "remediation_cost", "severity", "priority", "confidence", "evidence",
+          "cost_demonstrated", "gate", "whats_wrong", "why_it_costs", "recommendation", "status"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^ARCH-[0-9]{3}$" },
+          "title": { "type": "string", "description": "Short imperative. Never a principle name." },
+
+          "category": {
+            "enum": [
+              "module-organization", "boundary-erosion", "coupling", "cohesion",
+              "dependency-direction", "dependency-cycle", "duplication",
+              "missing-abstraction", "incorrect-abstraction", "overengineering",
+              "testability", "change-amplification", "scalability-bottleneck",
+              "cross-cutting-placement", "contract-stability",
+              "data-flow-gap", "integration-gap"
+            ],
+            "description": "Closed list. SOLID is a lens, not a category — file under the failure mode."
+          },
+
+          "locations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["path", "start_line", "end_line"],
+              "additionalProperties": false,
+              "properties": {
+                "path": { "type": "string" },
+                "start_line": { "type": "integer", "minimum": 1 },
+                "end_line": { "type": "integer", "minimum": 1 }
+              }
+            },
+            "description": "Gate 1. A finding without line ranges is discarded."
+          },
+
+          "blast_radius": { "$ref": "#/$defs/axis_wide" },
+          "change_frequency": { "$ref": "#/$defs/axis_hot" },
+          "remediation_cost": { "$ref": "#/$defs/axis_cost" },
+
+          "severity": { "enum": ["Critical", "High", "Medium", "Low", "Informational"] },
+          "priority": {
+            "enum": ["Fix now", "Plan it", "Fix when you next touch it", "Accept & document", "Note only"]
+          },
+          "effort": { "enum": ["Contained", "Moderate", "Substantial"] },
+
+          "priority_override": {
+            "type": "object",
+            "description": "rules.md §5. Raises priority ONE step above the matrix when the failure mode is externally visible and remediation cost is Low. Never lowers, never more than one step.",
+            "required": ["failure_mode", "matrix_priority"],
+            "additionalProperties": false,
+            "properties": {
+              "failure_mode": {
+                "enum": ["money", "data-loss", "security", "legal-compliance", "customer-facing-correctness"],
+                "description": "Closed list. Developer friction, build time, and aesthetics never qualify."
+              },
+              "matrix_priority": {
+                "type": "string",
+                "description": "What the Severity x Remediation Cost table gave before the override — so the adjustment stays auditable."
+              },
+              "reason": { "type": "string" }
+            }
+          },
+
+          "confidence": { "enum": ["High", "Medium", "Low"] },
+          "ceiling_applied": {
+            "type": "array",
+            "items": { "enum": ["none", "C1", "C2", "C3", "C4", "C5"] },
+            "minItems": 1,
+            "description": "C1 no tool/git · C2 load-bearing proxy · C3 projected consequence · C4 load-bearing infer · C5 unvalidated aggregate. All that apply; the lowest governs confidence."
+          },
+
+          "prospective": {
+            "type": "boolean",
+            "default": false,
+            "description": "Gate 2(d): young-code finding with no history available. Caps at Low confidence and never rises above 'Fix when you next touch it'."
+          },
+
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["tag", "content"],
+              "additionalProperties": false,
+              "properties": {
+                "tag": { "enum": ["tool", "proxy", "git", "read", "infer"] },
+                "command": {
+                  "type": "string",
+                  "description": "Required for tag=tool, proxy, git. The literal command run."
+                },
+                "content": { "type": "string", "description": "Verbatim output excerpt, or the read location and what is there." },
+                "replaces_tool": { "type": "string", "description": "tag=proxy only: the tool substituted for." },
+                "limitation": { "type": "string", "description": "tag=proxy only: what the substitution misses." },
+                "load_bearing": { "type": "boolean" }
+              },
+              "allOf": [
+                {
+                  "if": { "properties": { "tag": { "enum": ["tool", "proxy", "git"] } } },
+                  "then": { "required": ["command"] }
+                },
+                {
+                  "if": { "properties": { "tag": { "const": "proxy" } } },
+                  "then": { "required": ["replaces_tool", "limitation"] }
+                }
+              ]
+            },
+            "description": "At least one 'read' entry required. An all-'infer' ledger is discarded, not downgraded."
+          },
+
+          "cost_demonstrated": {
+            "type": "object",
+            "required": ["kind", "detail"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": ["historical", "blocked-capability", "forced", "prospective"],
+                "description": "Gate 2. 'forced' is admissible only after history was searched and came up empty. 'prospective' only for code too new to have history."
+              },
+              "added_date": {
+                "type": "string",
+                "description": "Required when kind=prospective: git log --diff-filter=A date proving the code is younger than the window."
+              },
+              "future_change": {
+                "type": "string",
+                "description": "Required when kind=prospective: the specific named change and why this shape resists it."
+              },
+              "detail": { "type": "string" },
+              "history_searched": {
+                "type": "string",
+                "description": "Required when kind=forced: the command run that found no comparable change."
+              },
+              "anchor": {
+                "type": "string",
+                "description": "Required when kind=forced: TODO, issue, near-duplicate, or user statement. Unanchored hypotheticals fail the gate."
+              }
+            },
+            "allOf": [
+              {
+                "if": { "properties": { "kind": { "const": "forced" } } },
+                "then": { "required": ["history_searched", "anchor"] }
+              },
+              {
+                "if": { "properties": { "kind": { "const": "prospective" } } },
+                "then": { "required": ["added_date", "future_change"] }
+              }
+            ]
+          },
+
+          "gate": {
+            "type": "object",
+            "required": ["g1_coordinates", "g2_cost", "g3_fix_vs_problem", "g4_rationale", "g5_proportionate"],
+            "additionalProperties": false,
+            "properties": {
+              "g1_coordinates": { "type": "string" },
+              "g2_cost": { "type": "string" },
+              "g3_fix_vs_problem": { "type": "string" },
+              "g4_rationale": {
+                "type": "string",
+                "description": "'found and rebutted: …' or 'none evident' — these are different claims."
+              },
+              "g5_proportionate": { "type": "string", "description": "Against the project tier." }
+            }
+          },
+
+          "steelman": {
+            "type": "string",
+            "description": "Phase 5 Pass A: the strongest defense of the current design, and why it does not hold."
+          },
+
+          "whats_wrong": { "type": "string" },
+          "why_it_costs": { "type": "string" },
+          "recommendation": { "type": "string" },
+          "recommendation_cost": { "type": "string" },
+          "if_you_do_nothing": { "type": "string" },
+          "unblocks": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^ARCH-[0-9]{3}$" },
+            "description": "Findings made cheaper by fixing this one. Drives Phase 6 sequencing."
+          },
+
+          "status": {
+            "enum": ["Open", "Accepted as tradeoff", "Resolved", "Requires human judgment"]
+          }
+        }
+      }
+    },
+
+    "not_recommended": {
+      "type": "array",
+      "description": "Phase 6 §4 — fixes considered and deliberately not proposed.",
+      "items": {
+        "type": "object",
+        "required": ["what", "why_not"],
+        "additionalProperties": false,
+        "properties": {
+          "what": { "type": "string" },
+          "why_not": { "type": "string" },
+          "revisit_when": { "type": "string" }
+        }
+      }
+    },
+
+    "considered_and_dropped": {
+      "type": "array",
+      "description": "Candidates that failed the gate. Shows the bar was applied.",
+      "items": {
+        "type": "object",
+        "required": ["candidate", "failed_gate"],
+        "additionalProperties": false,
+        "properties": {
+          "candidate": { "type": "string" },
+          "failed_gate": { "enum": ["G1", "G2", "G3", "G4", "G5", "infer-only"] },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "provenance": {
+      "enum": ["measured", "judged"],
+      "description": "measured = backed by a tool or git ledger line. judged = reasoned."
+    },
+    "axis_wide": {
+      "type": "object",
+      "required": ["value", "provenance", "basis"],
+      "additionalProperties": false,
+      "properties": {
+        "value": { "enum": ["Wide", "Moderate", "Contained"] },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "basis": { "type": "string", "description": "Proportion of modules, transitive-dependent count, or trace width." }
+      }
+    },
+    "axis_hot": {
+      "type": "object",
+      "required": ["value", "provenance", "basis"],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "enum": ["Hot", "Warm", "New", "Cold"],
+          "description": "New = did not exist for most of the window. Not the same as Cold: Cold means nobody touches it, New means you cannot tell yet."
+        },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "basis": { "type": "string", "description": "Commit count and window; for New, the git log --diff-filter=A date. 'judged' cannot exceed Warm." }
+      }
+    },
+    "axis_cost": {
+      "type": "object",
+      "required": ["value", "provenance", "basis"],
+      "additionalProperties": false,
+      "properties": {
+        "value": { "enum": ["Low", "Medium", "High"] },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "basis": { "type": "string", "description": "Files touched, mechanical vs semantic, migration, contract break, test coverage." }
+      }
+    }
+  }
+}

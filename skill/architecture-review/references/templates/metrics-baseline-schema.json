@@ -1,0 +1,160 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.invalid/architecture-review/metrics-baseline-schema.json",
+  "title": "Architecture Review Metrics Baseline",
+  "description": "Measured structural metrics from one run. Input to diff mode and to CI trending. ONLY include keys you actually measured — omit a key rather than writing null, zero, or a guess. rules.md §8.1.",
+  "type": "object",
+  "required": ["schema_version", "generated", "window_days", "tools"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "generated": { "type": "string", "format": "date-time" },
+    "commit": { "type": "string", "description": "git rev-parse HEAD at time of measurement" },
+    "window_days": {
+      "type": ["integer", "null"],
+      "description": "History window used. null only when there is no VCS — state that in coverage."
+    },
+
+    "size": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_files": { "type": "integer", "minimum": 0 },
+        "source_loc": { "type": "integer", "minimum": 0 },
+        "modules": { "type": "integer", "minimum": 0 },
+        "packages": { "type": "integer", "minimum": 0, "description": "Monorepo workspaces, if any" },
+        "deployables": { "type": "integer", "minimum": 0 },
+        "languages": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" },
+          "description": "File count per language"
+        }
+      }
+    },
+
+    "graph": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cycles": { "type": "integer", "minimum": 0 },
+        "cross_module_cycles": { "type": "integer", "minimum": 0 },
+        "max_fan_in": { "type": "integer", "minimum": 0 },
+        "max_fan_in_file": { "type": "string" },
+        "max_fan_out": { "type": "integer", "minimum": 0 },
+        "max_fan_out_file": { "type": "string" },
+        "orphan_modules": { "type": "integer", "minimum": 0 },
+        "layer_violations": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "history": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "commits_in_window": { "type": "integer", "minimum": 0 },
+        "contributors_in_window": { "type": "integer", "minimum": 0 },
+        "files_changed_in_window": { "type": "integer", "minimum": 0 },
+        "hot_files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Top-decile churn"
+        },
+        "toll_booths": {
+          "type": "array",
+          "description": "Files appearing across most traced feature changes — Phase 4.",
+          "items": {
+            "type": "object",
+            "required": ["path", "appears_in", "of_traces"],
+            "additionalProperties": false,
+            "properties": {
+              "path": { "type": "string" },
+              "appears_in": { "type": "integer" },
+              "of_traces": { "type": "integer" }
+            }
+          }
+        },
+        "max_amplification": {
+          "type": "number",
+          "description": "Highest incidental-to-essential ratio observed in Phase 4."
+        },
+        "co_change_validity": {
+          "type": "object",
+          "description": "Phase 1 gate. The co-change matrix is inadmissible until the survivor sample passes. The exclusion rate is NOT the verdict — it is deaf to small multi-concern commits.",
+          "required": ["verdict", "sample_size", "bundles_in_sample"],
+          "additionalProperties": false,
+          "properties": {
+            "fanout_cap": { "type": "integer" },
+            "commits_excluded_by_cap": { "type": "integer", "minimum": 0 },
+            "commits_total": { "type": "integer", "minimum": 0 },
+            "sample_size": { "type": "integer", "minimum": 1 },
+            "bundles_in_sample": { "type": "integer", "minimum": 0 },
+            "sampled_commits": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "sha — classification, so the verdict is auditable"
+            },
+            "verdict": {
+              "enum": ["usable", "usable_with_mandatory_spot_check", "unusable"],
+              "description": "unusable → quote no pair counts anywhere; cohesion falls back to the import graph at ceiling C1"
+            }
+          }
+        }
+      }
+    },
+
+    "duplication": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "duplicated_lines": { "type": "integer", "minimum": 0 },
+        "duplicated_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "clone_count": { "type": "integer", "minimum": 0 },
+        "min_lines_setting": { "type": "integer" },
+        "min_tokens_setting": { "type": "integer" }
+      },
+      "description": "Raw detector output, before Phase 3 triage. Most of it is not a finding."
+    },
+
+    "complexity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_cyclomatic": { "type": "integer", "minimum": 0 },
+        "max_cyclomatic_location": { "type": "string" },
+        "above_threshold_count": { "type": "integer", "minimum": 0 },
+        "threshold": { "type": "integer" },
+        "hotspots": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Complex AND hot — the join from code-metrics.md §3. Complex-and-cold is not reported."
+        }
+      }
+    },
+
+    "findings_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Counts for trending only. A finding count is NOT a quality measure and must not be presented as one (rules.md §5).",
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "by_priority": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "by_confidence": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+
+    "tools": {
+      "type": "object",
+      "description": "What produced each number. A measurement with no tool entry did not happen.",
+      "additionalProperties": {
+        "type": "string",
+        "description": "'<name>@<version>', 'not_run', or 'proxy:<method>'"
+      }
+    }
+  }
+}

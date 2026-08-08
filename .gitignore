@@ -1,0 +1,18 @@
+# Review output — this skill's own artifacts, if it is ever run on this repo
+.architecture-review/
+
+# Build/dist
+dist/
+*.zip
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+.vscode/
+
+# Node, if tooling is ever added here
+node_modules/
+npm-debug.log*

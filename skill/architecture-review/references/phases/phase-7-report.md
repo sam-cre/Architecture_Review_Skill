@@ -111,7 +111,7 @@ Record the outcome in the coverage section: `findings.json - parsed OK, schema-v
 Close by telling the user what exists and what to do with it:
 
 - `architecture-review.md` - read this
-- `findings.json` - feed this to a scoped refactoring session, one finding at a time
+- `findings.json` - the input to `refactor` mode, one finding at a time
 - `metrics-baseline.json` - re-run in `diff` mode later to see whether debt moved
 
 Remind them nothing in their project was modified.

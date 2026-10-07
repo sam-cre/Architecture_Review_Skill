@@ -30,6 +30,7 @@ From any project directory:
 /architecture-review deep         wider evidence sweep, more change scenarios
 /architecture-review pr           review the design of a diff
 /architecture-review diff         re-review; did the debt move?
+/architecture-review refactor     apply one finding, behavior-preserving, after you approve
 ```
 
 It also triggers on plain requests like: *"is this overengineered?"*, *"why is this so hard to change?"*, *"review my architecture"*, *"do I have circular dependencies?"*

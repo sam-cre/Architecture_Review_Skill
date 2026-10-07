@@ -23,6 +23,7 @@ All `references/...` paths resolve relative to **`skill/architecture-review/`**,
 - `deep` — phases 0–7, wider evidence sweep and more change scenarios
 - `pr` — phases 0 (light), 2, 3, 5, 7, scoped to a diff
 - `diff` — re-review; read `references/differential-protocol.md`
+- `refactor` - apply one finding from a prior run after approval; read `references/refactor-protocol.md`
 
 ## Phases
 
@@ -30,7 +31,7 @@ All `references/...` paths resolve relative to **`skill/architecture-review/`**,
 
 ## Rules
 
-1. Read-only — never modify a file in the reviewed project, never install into it; only `.architecture-review/` is written. There is no fix phase.
+1. Read-only — never modify a file in the reviewed project, never install into it; only `.architecture-review/` is written. No review phase fixes anything; `refactor` mode is a separate session.
 2. Measure before you opine — Phase 1 runs tools and forms no judgments.
 3. Never conclude "decoupled" from import edges alone — static graphs miss event buses, shared tables, and string-keyed registries. Phase 2 mandates an implicit-coupling census.
 4. Every finding passes the 5-Point Cost Gate, `references/rules.md` §4. No demonstrated cost, no finding.

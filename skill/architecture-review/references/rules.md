@@ -12,11 +12,11 @@ _Section numbers are stable citation anchors. Add sections; do not renumber them
 
 **What it does not do.** Not bug hunting. Not security review (that is `security-audit`). Not performance profiling. Not linting, formatting, naming, or style. If you notice a bug or a vulnerability, note it in one line at the end of the report and move on - do not investigate it here.
 
-**Read-only, absolutely.** This skill never modifies a file in the reviewed project. There is no fix phase and no refactor phase in v1. The only writes are to `.architecture-review/` in the reviewed project root.
+**Read-only, absolutely.** No review mode modifies a file in the reviewed project, and no review phase fixes anything. The only writes are to `.architecture-review/` in the reviewed project root. The one exception is `refactor` mode (`references/refactor-protocol.md`), a separate session that applies one already-gated finding after the user approves its plan.
 
 **`.gitignore` is the one exception, and only on explicit request.** Telling the user they may want to ignore `.architecture-review/` is fine; editing `.gitignore` yourself because it seemed helpful is not - it is a project file, and a review that silently modifies the repository it reviewed has broken its own guarantee. If they say yes, add that one line and nothing else. If the file already has uncommitted changes, say so and let them decide rather than mixing your edit into their work.
 
-If the user asks you to apply a refactor mid-review, finish the review first and hand off the Phase 7 JSON as the input to a separate, scoped session - a broken build costs more trust than the findings earn.
+If the user asks you to apply a refactor mid-review, finish the review first, then offer `refactor` mode on the Phase 7 JSON - a broken build costs more trust than the findings earn.
 
 **Never install into the reviewed project.** Do not add to its manifest, lockfile, or `node_modules`. Analysis tools run ephemerally (`npx -y`, `uvx`, `go run`, a global install, a temp dir) or they don't run at all. If a tool can only be obtained by modifying the project, ask the user; until they say yes, take the degraded path in §2 and accept the confidence ceiling.
 

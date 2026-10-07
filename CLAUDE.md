@@ -22,6 +22,7 @@ skill/architecture-review/
     ├── tooling/                 per-measurement commands + fallbacks
     ├── templates/               report, profile, traces, 2 JSON schemas
     ├── differential-protocol.md diff mode
+    ├── refactor-protocol.md     refactor mode
     └── parallel-review.md       large codebases
 ```
 
@@ -33,7 +34,7 @@ skill/architecture-review/
 
 **Section numbers in `rules.md` are stable citation anchors.** Everything cites them. Add sections; never renumber.
 
-**Read-only.** The skill never modifies a file in the reviewed project and never installs into it. There is no fix or refactor phase - `findings.json` is the hand-off to a separate, scoped session. This was a deliberate v1 decision: cross-boundary refactoring is fragile at current context lengths, and a broken build destroys the trust a rigorous assessment earns. Do not add a fix phase without revisiting that reasoning.
+**Read-only.** The skill never modifies a file in the reviewed project and never installs into it. No review phase fixes anything - `findings.json` is the hand-off to a separate, scoped session. This was a deliberate v1 decision: cross-boundary refactoring is fragile at current context lengths, and a broken build destroys the trust a rigorous assessment earns. `refactor` mode (`references/refactor-protocol.md`) is that separate session, built to answer the reasoning rather than ignore it: one gated finding per run, a green baseline, characterization tests where coverage is missing, an approval gate before any edit, undo on a red step, and proof from the same measurement that produced the finding. Do not add a fix phase to the review modes, and do not loosen those refactor gates, without revisiting that reasoning.
 
 **Output directory.** Artifacts go to `.architecture-review/` in the reviewed project - never `references/` or `Templates/`, which collide case-insensitively with the skill's own tree on Windows and macOS.
 

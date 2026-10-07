@@ -16,7 +16,7 @@ Evidence-based architecture and design-quality review. When the user asks to rev
 
 ## Modes
 
-`quick` 0,1,2,7 · `standard` 0–7 (default) · `deep` 0–7 wider · `pr` diff-scoped · `diff` see `references/differential-protocol.md`
+`quick` 0,1,2,7 · `standard` 0–7 (default) · `deep` 0–7 wider · `pr` diff-scoped · `diff` see `references/differential-protocol.md` · `refactor` see `references/refactor-protocol.md`
 
 ## Phases
 
@@ -24,7 +24,7 @@ Evidence-based architecture and design-quality review. When the user asks to rev
 
 ## Rules
 
-1. Read-only — never modify or install into the reviewed project; only `.architecture-review/` is written. No fix phase.
+1. Read-only — never modify or install into the reviewed project; only `.architecture-review/` is written. No review phase fixes anything; `refactor` mode is a separate session.
 2. Measure before you opine — Phase 1 forms no judgments.
 3. Never conclude "decoupled" from import edges alone — static graphs miss event buses, shared tables, string-keyed registries. Phase 2 mandates an implicit-coupling census.
 4. Every finding passes the 5-Point Cost Gate (`references/rules.md` §4). No demonstrated cost, no finding.

@@ -60,7 +60,7 @@ for m in AGENTS.md .cursorrules .windsurfrules; do
   f="$ROOT/$m"
   [ -f "$f" ] || { bad "$m missing"; continue; }
   miss=''
-  for mode in quick standard deep pr diff; do
+  for mode in quick standard deep pr diff refactor; do
     grep -q "\`$mode\`" "$f" || miss="$miss $mode"
   done
   # last phase index must appear (phases are 0-indexed)

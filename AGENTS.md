@@ -23,6 +23,7 @@ All `references/...` paths are relative to **`skill/architecture-review/`**, not
 - `deep` - phases 0–7, wider: full history, every tool, all matching domains, more change scenarios.
 - `pr` - phases 0 (light), 2, 3, 5, 7, scoped to a diff.
 - `diff` - re-review against a prior run. Read `references/differential-protocol.md`.
+- `refactor` - apply one finding from a prior run, behavior-preserving, after approval. Read `references/refactor-protocol.md`.
 
 ## Phases
 
@@ -30,7 +31,7 @@ All `references/...` paths are relative to **`skill/architecture-review/`**, not
 
 ## Non-negotiable rules
 
-1. **Read-only.** Never modify a file in the reviewed project and never install into it. Only `.architecture-review/` is written. There is no fix phase - `findings.json` is the hand-off to a separate refactoring session.
+1. **Read-only.** Never modify a file in the reviewed project and never install into it. Only `.architecture-review/` is written. No review phase fixes anything - `findings.json` is the hand-off to `refactor` mode, a separate session.
 2. **Measure before you opine.** Phase 1 runs tools and forms no judgments. Reading first and measuring after produces cherry-picked evidence.
 3. **Never conclude "decoupled" from import edges alone.** Static graphs cannot see event buses, shared database tables, or string-keyed registries - a distributed monolith looks clean to `madge`. Phase 2 mandates an implicit-coupling census.
 4. **Every finding passes the 5-Point Cost Gate** - `references/rules.md` §4. No demonstrated cost, no finding.

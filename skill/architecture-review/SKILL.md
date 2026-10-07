@@ -16,7 +16,8 @@ description: >-
   feature's data show up", "is my data consistent across the app", "audit my
   webhook/integration wiring", "what does my app actually depend on", find second
   sources of truth or unwired external contracts; or wants a structural refactor
-  plan. Not for finding bugs or security vulnerabilities.
+  plan, or to apply one reviewed finding as a refactor. Not for finding bugs or
+  security vulnerabilities.
 allowed-tools: Read, Grep, Glob, Write, Edit, Bash, Task, TodoWrite
 ---
 
@@ -36,7 +37,7 @@ Review artifacts are written to **`.architecture-review/`** in the *reviewed pro
 
 ## Non-Negotiable Guardrails
 
-1. **Read-only.** This skill never modifies a file in the reviewed project. Nothing is installed into it. The only writes go to `.architecture-review/`.
+1. **Read-only.** No review mode modifies a file in the reviewed project (`refactor` mode alone edits, one approved finding at a time). Nothing is installed into it. The only writes go to `.architecture-review/`.
 2. **Measure before you opine.** Phase 1 gathers evidence with no judgments. Reading first and measuring afterward produces cherry-picked measurement.
 3. **Every finding passes the 5-Point Cost Gate** and carries a tagged evidence ledger. No demonstrated cost → not a finding.
 4. **No invented numbers.** No scores, grades, indices, or metrics you did not compute.
@@ -55,8 +56,9 @@ Determine the mode before Phase 0. Default is `standard`.
 | `deep` | 0–7 | Same phases, wider: full history window, every available tool, all matching domain guides, 5–8 change scenarios instead of 3. |
 | `pr` | 0 (light), 2, 3, 5, 7 | Scoped to a diff. Does *this change* move the architecture in a good direction? Scope Phases 2–3 to changed files plus their direct dependents. |
 | `diff` | - | Re-review against a prior run. Read `references/differential-protocol.md`. |
+| `refactor` | - | Apply one finding from a prior run's `findings.json`, behavior-preserving, after approval. Read `references/refactor-protocol.md`. |
 
-There is no fix or refactor mode. The Phase 7 JSON is the hand-off artifact for a separate, scoped refactoring session.
+The review modes never modify the project. `refactor` is the separate, scoped session the Phase 7 JSON hands off to: one finding per run, behind an approval gate, with green tests before and after.
 
 ## Phases
 

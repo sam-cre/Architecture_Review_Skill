@@ -1,8 +1,8 @@
 # Architecture Review Skill
 
-Finds the design problems AI-built codebases hide, then cleans them up one safe step at a time.
+Finds the design problems AI-built codebases and cleans them up.
 
-Built for code assembled feature by feature with prompts: one concept stored in two places, a webhook nothing registers, folders that promise a structure the code dropped. The import graph can't see these. This skill looks for them directly.
+Made for vibecoded codebases: one concept stored in two places, a webhook nothing registers, folders that promise a structure the code dropped. The import graph can't see these. This skill looks for them directly.
 
 Not a bug hunter, linter, or security scanner.
 

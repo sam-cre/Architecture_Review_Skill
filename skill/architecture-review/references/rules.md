@@ -298,10 +298,21 @@ Every finding goes in both `.architecture-review/findings.md` (human) and `.arch
 - **What's wrong:** Plain language. What the code does, structurally.
 - **Why it costs:** The concrete consequence, tied to the Gate 2 evidence.
 - **Recommendation:** The specific change. Name files.
+- **Search directive:** question · commands · expect - see the subsection below. Required.
 - **Cost of the fix:** What it takes, honestly.
 - **If you do nothing:** What this looks like in six months.
 - **Status:** Open | Accepted as tradeoff | Resolved (diff mode) | Requires human judgment
 ```
+
+### Search directive - what the refactor session must search for
+
+A finding names *where* the problem is. It does not tell a later session *what else the fix touches*. The **search directive** closes that gap: it is the question the refactor session must answer by searching before it plans, and the commands that answer it. The review writes it from the same evidence that produced the finding, so the refactor session starts from the review's knowledge instead of rediscovering it.
+
+- **Required on every finding**, including `Note only`. A finding with no directive is not refactorable, and the schema says so.
+- **`question`** names the sites the fix would touch, not the finding's own lines: every reader or writer of the concept, every caller of the function, every importer of the module. Phrase it so a search can answer it.
+- **`commands`** are literal, read-only commands runnable from the reviewed project root. Prefer `git grep` and `git log`: they need no extra install and respect `.gitignore`. Use `rg` or `grep` only when git is unavailable, and say so. Start from the command that produced the `[tool]` or `[read]` evidence, then widen it to the dependents. At least one must be a **dynamic-reference check** (strings built at runtime, reflection, framework registration, the §7 dead-code cases) whenever the fix would move, rename, or re-route a symbol. Static search cannot prove completeness; this command states what it cannot see.
+- **`expect`** states the sites the review already observed, with their count, and what a different result means: *wider* (new sites to plan for), or *narrower or empty* (the finding may be stale). A directive that does not state a count cannot detect drift, and drift is the reason to re-search.
+- Derived, not invented: every path and count in the directive must come from a command run during the review (`rules.md` §8.1, §8.2). Do not write commands you did not run.
 
 ### Category enum - closed list
 

@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://example.invalid/architecture-review/metrics-baseline-schema.json",
   "title": "Architecture Review Metrics Baseline",
-  "description": "Measured structural metrics from one run. Input to diff mode and to CI trending. ONLY include keys you actually measured — omit a key rather than writing null, zero, or a guess. rules.md §8.1.",
+  "description": "Measured structural metrics from one run. Input to diff mode and to CI trending. ONLY include keys you actually measured - omit a key rather than writing null, zero, or a guess. rules.md §8.1.",
   "type": "object",
   "required": ["schema_version", "generated", "window_days", "tools"],
   "additionalProperties": false,
@@ -12,7 +12,7 @@
     "commit": { "type": "string", "description": "git rev-parse HEAD at time of measurement" },
     "window_days": {
       "type": ["integer", "null"],
-      "description": "History window used. null only when there is no VCS — state that in coverage."
+      "description": "History window used. null only when there is no VCS - state that in coverage."
     },
 
     "size": {
@@ -61,7 +61,7 @@
         },
         "toll_booths": {
           "type": "array",
-          "description": "Files appearing across most traced feature changes — Phase 4.",
+          "description": "Files appearing across most traced feature changes - Phase 4.",
           "items": {
             "type": "object",
             "required": ["path", "appears_in", "of_traces"],
@@ -79,7 +79,7 @@
         },
         "co_change_validity": {
           "type": "object",
-          "description": "Phase 1 gate. The co-change matrix is inadmissible until the survivor sample passes. The exclusion rate is NOT the verdict — it is deaf to small multi-concern commits.",
+          "description": "Phase 1 gate. The co-change matrix is inadmissible until the survivor sample passes. The exclusion rate is NOT the verdict - it is deaf to small multi-concern commits.",
           "required": ["verdict", "sample_size", "bundles_in_sample"],
           "additionalProperties": false,
           "properties": {
@@ -91,7 +91,7 @@
             "sampled_commits": {
               "type": "array",
               "items": { "type": "string" },
-              "description": "sha — classification, so the verdict is auditable"
+              "description": "sha - classification, so the verdict is auditable"
             },
             "verdict": {
               "enum": ["usable", "usable_with_mandatory_spot_check", "unusable"],
@@ -126,7 +126,7 @@
         "hotspots": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "Complex AND hot — the join from code-metrics.md §3. Complex-and-cold is not reported."
+          "description": "Complex AND hot - the join from code-metrics.md §3. Complex-and-cold is not reported."
         }
       }
     },

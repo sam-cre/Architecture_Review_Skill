@@ -59,7 +59,7 @@ State the history window used, and the tool versions where a tool produced a num
 
 ## 4. Write and verify the machine artifacts
 
-**`findings.json`** - conforms to `references/templates/findings-schema.json`. This is the hand-off for a separate, scoped refactoring session and the input to `diff` mode. Every field from `rules.md` §6, including the full evidence ledger with its tags and the applied ceiling. Do not summarize the ledger away; the tags are what make the JSON auditable downstream.
+**`findings.json`** - conforms to `references/templates/findings-schema.json`. This is the hand-off for a separate, scoped refactoring session and the input to `diff` mode. Every field from `rules.md` §6, including the full evidence ledger with its tags and the applied ceiling, and the `search_directive` on every finding (`rules.md` §6). Also write `fix_order` from Phase 6. Do not summarize the ledger away; the tags are what make the JSON auditable downstream.
 
 **`metrics-baseline.json`** - updated from Phase 1. Only measured numbers; omit keys you could not fill rather than writing nulls.
 
@@ -86,7 +86,7 @@ jsonschema.validate(d, s); print('schema OK')
 # or:  npx -y ajv-cli validate -s <schema> -d .architecture-review/findings.json --spec=draft7
 ```
 
-**3. If no validator is available, spot-check by hand** - read the file back and confirm: it parses, the `findings` array length matches your count, the last entry is complete and closed, every entry has a non-empty `evidence` array with at least one `read` tag, and every `cost_demonstrated.kind: "forced"` carries both `history_searched` and `anchor`.
+**3. If no validator is available, spot-check by hand** - read the file back and confirm: it parses, the `findings` array length matches your count, the last entry is complete and closed, every entry has a non-empty `evidence` array with at least one `read` tag, every `cost_demonstrated.kind: "forced"` carries both `history_searched` and `anchor`, and every finding has a `search_directive` with at least one command and a non-empty `expect`.
 
 **On failure, fix the file and re-run the ladder.** Do not report a validation failure as a caveat and move on - an invalid hand-off artifact is a broken deliverable, and the whole point of the schema is that ungrounded findings fail loudly rather than reading fine. Repeat until step 1 passes and either step 2 passes or you have recorded that no validator was available.
 
@@ -111,7 +111,7 @@ Record the outcome in the coverage section: `findings.json - parsed OK, schema-v
 Close by telling the user what exists and what to do with it:
 
 - `architecture-review.md` - read this
-- `findings.json` - the input to `refactor` mode, one finding at a time
+- `findings.json` - the input to `refactor` mode, one finding at a time, in `fix_order`
 - `metrics-baseline.json` - re-run in `diff` mode later to see whether debt moved
 
 Remind them nothing in their project was modified.

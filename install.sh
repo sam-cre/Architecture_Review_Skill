@@ -4,7 +4,7 @@
 # available in every project, in Claude Code and in the Claude desktop app.
 #
 #   ./install.sh          copy (default, safe everywhere)
-#   ./install.sh --link   symlink — edits to this repo apply immediately
+#   ./install.sh --link   symlink - edits to this repo apply immediately
 #   ./install.sh --force  overwrite without prompting
 #
 set -euo pipefail

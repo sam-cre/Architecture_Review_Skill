@@ -1,6 +1,6 @@
 # Architecture Review Skill
 
-Evidence-based architecture and design-quality review. When the user asks to review, audit, or critique a codebase's architecture, design, or structure — or asks "is this designed well", "is this overengineered", "is my folder structure right", "why is this so hard to change" — follow `skill/architecture-review/SKILL.md`.
+Evidence-based architecture and design-quality review. When the user asks to review, audit, or critique a codebase's architecture, design, or structure - or asks "is this designed well", "is this overengineered", "is my folder structure right", "why is this so hard to change" - follow `skill/architecture-review/SKILL.md`.
 
 Not for finding bugs or security vulnerabilities.
 
@@ -10,20 +10,20 @@ All `references/...` paths resolve relative to **`skill/architecture-review/`**,
 
 ## Loading order
 
-1. `skill/architecture-review/SKILL.md` — modes, phases, domain router
-2. `skill/architecture-review/references/rules.md` — evidence ledger, confidence tiers, Cost Gate, severity, finding schema, noise control, anti-fabrication. Load once; applies to all phases.
-3. `references/phases/phase-N-*.md` — one at a time, as you reach each phase. Never pre-load.
-4. `references/domains/*.md` — only the guides matching the shape identified in Phase 0. Release after Phase 3.
-5. `references/tooling/*.md` — as needed in Phase 1, then release.
+1. `skill/architecture-review/SKILL.md` - modes, phases, domain router
+2. `skill/architecture-review/references/rules.md` - evidence ledger, confidence tiers, Cost Gate, severity, finding schema, noise control, anti-fabrication. Load once; applies to all phases.
+3. `references/phases/phase-N-*.md` - one at a time, as you reach each phase. Never pre-load.
+4. `references/domains/*.md` - only the guides matching the shape identified in Phase 0. Release after Phase 3.
+5. `references/tooling/*.md` - as needed in Phase 1, then release.
 
 ## Modes
 
-- `quick` — phases 0, 1, 2, 7 (structural triage)
-- `standard` — phases 0–7 (default)
-- `deep` — phases 0–7, wider evidence sweep and more change scenarios
-- `pr` — phases 0 (light), 2, 3, 5, 7, scoped to a diff
-- `diff` — re-review; read `references/differential-protocol.md`
-- `refactor` - apply one finding from a prior run after approval; read `references/refactor-protocol.md`
+- `quick` - phases 0, 1, 2, 7 (structural triage)
+- `standard` - phases 0–7 (default)
+- `deep` - phases 0–7, wider evidence sweep and more change scenarios
+- `pr` - phases 0 (light), 2, 3, 5, 7, scoped to a diff
+- `diff` - re-review; read `references/differential-protocol.md`
+- `refactor` - apply one finding from a prior run, in `fix_order`; search first, then approval; read `references/refactor-protocol.md`
 
 ## Phases
 
@@ -31,13 +31,13 @@ All `references/...` paths resolve relative to **`skill/architecture-review/`**,
 
 ## Rules
 
-1. Read-only — never modify a file in the reviewed project, never install into it; only `.architecture-review/` is written. No review phase fixes anything; `refactor` mode is a separate session.
-2. Measure before you opine — Phase 1 runs tools and forms no judgments.
-3. Never conclude "decoupled" from import edges alone — static graphs miss event buses, shared tables, and string-keyed registries. Phase 2 mandates an implicit-coupling census.
+1. Read-only - never modify a file in the reviewed project, never install into it; only `.architecture-review/` is written. No review phase fixes anything; `refactor` mode is a separate session.
+2. Measure before you opine - Phase 1 runs tools and forms no judgments.
+3. Never conclude "decoupled" from import edges alone - static graphs miss event buses, shared tables, and string-keyed registries. Phase 2 mandates an implicit-coupling census.
 4. Every finding passes the 5-Point Cost Gate, `references/rules.md` §4. No demonstrated cost, no finding.
-5. History before hypotheticals — a projected change is admissible only after a git search found no comparable past one, and only with a named anchor. Which commits qualify is defined in §4.
+5. History before hypotheticals - a projected change is admissible only after a git search found no comparable past one, and only with a named anchor. Which commits qualify is defined in §4.
 6. Every finding carries a tagged evidence ledger (§2); at least one `[read]` line; `[infer]`-only is discarded, not downgraded.
-7. Confidence is derived from the ledger, not judged (§3) — ceilings C1–C5, lowest wins.
+7. Confidence is derived from the ledger, not judged (§3) - ceilings C1–C5, lowest wins.
 8. Never state a metric you did not compute or cite a line you did not open (§8). No scores, grades, or indices.
 9. A clean review is a valid outcome. Manufacturing findings is the worst failure mode.
 

@@ -11,6 +11,7 @@
 #   6. rules.md still has exactly 9 stable section anchors
 #   7. Ceiling range (C1..CN) agrees across rules.md, mirrors, phases and schema
 #   8. Both JSON schemas parse
+#   9. Schema behaves: valid fixture passes, search_directive-less fixture fails
 #
 set -uo pipefail
 
@@ -75,13 +76,13 @@ for m in AGENTS.md .cursorrules .windsurfrules; do
   # grep -c prints 0 and exits 1 on no-match; the count is what we want either way
   n=$(grep -icE "$LEAK" "$ROOT/$m" 2>/dev/null); n=${n:-0}
   if [ "$n" -eq 0 ]; then ok "$m carries no rules content"
-  else bad "$m restates rules content ($n hits) — mirrors must point, not copy"; fi
+  else bad "$m restates rules content ($n hits) - mirrors must point, not copy"; fi
 done
 
 # --- 6. rules.md section anchors -------------------------------------------
 SEC=$(grep -c '^## [0-9]\.' references/rules.md)
 if [ "$SEC" -eq 9 ]; then ok "rules.md has 9 stable section anchors"
-else bad "rules.md has $SEC top-level sections, expected 9 — section numbers are citation anchors, never renumber"; fi
+else bad "rules.md has $SEC top-level sections, expected 9 - section numbers are citation anchors, never renumber"; fi
 
 # --- 7. ceiling range agrees everywhere ------------------------------------
 # rules.md §3 defines the ceilings; the mirrors, CLAUDE.md, the phase files and
@@ -105,7 +106,7 @@ else
   # the schema enumerates them individually rather than as a range
   SCHEMA_TOP=$(grep -oE '"C[0-9]+"' references/templates/findings-schema.json | tr -d '"' | sort -V | tail -1)
   if [ -n "$STALE" ]; then
-    bad "ceiling range drift — rules.md defines up to $TOP but these cite a different top:"
+    bad "ceiling range drift - rules.md defines up to $TOP but these cite a different top:"
     echo "$STALE" | sed 's/^/       /'
   elif [ "$SCHEMA_TOP" != "$TOP" ]; then
     bad "findings-schema.json enumerates up to $SCHEMA_TOP but rules.md defines up to $TOP"
@@ -124,7 +125,41 @@ for f in references/templates/*.json; do
   fi
 done
 
+# --- 9. schema behaves as intended -----------------------------------------
+# Parsing (check 8) proves the JSON is well-formed, not that the schema rejects
+# what it should. The negative fixture is the proof that required fields bite.
+FIX="$ROOT/tests/fixtures"
+SCHEMA="$SKILL/references/templates/findings-schema.json"
+# Pick the first interpreter that actually has jsonschema. On Windows, python3 is
+# often a Store stub that runs but imports nothing useful.
+PY=''
+for cand in python3 python; do
+  if command -v "$cand" >/dev/null 2>&1 && "$cand" -c "import jsonschema" 2>/dev/null; then PY="$cand"; break; fi
+done
+if [ -n "$PY" ]; then
+  validate() { "$PY" -c "import json,sys,jsonschema; jsonschema.validate(json.load(open(sys.argv[2])), json.load(open(sys.argv[1])))" "$SCHEMA" "$1" 2>/dev/null; }
+  if validate "$FIX/findings-valid.json"; then ok "valid fixture passes schema 1.1"
+  else bad "valid fixture fails schema 1.1 - the schema or the fixture drifted"; fi
+  if validate "$FIX/findings-missing-search-directive.json"; then
+    bad "negative fixture passed - schema no longer requires search_directive"
+  else ok "negative fixture rejected (search_directive is required)"; fi
+else
+  warn "jsonschema not installed; schema behavior check skipped (pip install jsonschema)"
+fi
+
+# --- 10. agent setup file matches the installers it drives -----------------
+# SETUP-FOR-AGENTS.md tells an agent exactly which installer flags to pass. If an
+# installer renames a flag, the agent's first install fails with no context.
+SETUP="$ROOT/SETUP-FOR-AGENTS.md"
+if [ ! -f "$SETUP" ]; then bad "SETUP-FOR-AGENTS.md missing"
+else
+  if grep -q -- 'install.sh --force' "$SETUP" && grep -q -- '--force)' "$ROOT/install.sh"; then ok "SETUP-FOR-AGENTS.md uses install.sh --force, which exists"
+  else bad "SETUP-FOR-AGENTS.md's install.sh flag is missing from install.sh"; fi
+  if grep -q -- '-Force' "$SETUP" && grep -qi 'param(' "$ROOT/install.ps1" && grep -q '\[switch\]\$Force' "$ROOT/install.ps1"; then ok "SETUP-FOR-AGENTS.md uses install.ps1 -Force, which exists"
+  else bad "SETUP-FOR-AGENTS.md's install.ps1 flag is missing from install.ps1"; fi
+fi
+
 echo
 if [ "$FAIL" -eq 0 ]; then printf '%bAll invariants hold.%b\n' "$G" "$N"
-else printf '%bInvariants broken — see FAIL lines above.%b\n' "$R" "$N"; fi
+else printf '%bInvariants broken - see FAIL lines above.%b\n' "$R" "$N"; fi
 exit "$FAIL"

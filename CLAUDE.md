@@ -22,8 +22,14 @@ skill/architecture-review/
     ├── tooling/                 per-measurement commands + fallbacks
     ├── templates/               report, profile, traces, 2 JSON schemas
     ├── differential-protocol.md diff mode
-    ├── refactor-protocol.md     refactor mode
+    ├── refactor-protocol.md     refactor mode (finding-driven, search first)
     └── parallel-review.md       large codebases
+
+tests/fixtures/                  findings.json examples: one valid, one that must
+                                 fail. check-consistency.sh checks the schema against both.
+.github/workflows/ci.yml         runs check-consistency.sh on every pull request
+SETUP-FOR-AGENTS.md              the one-prompt setup an agent follows (clone, install, review).
+                                 It names install.sh / install.ps1 and the flags; keep them in sync.
 ```
 
 ## Invariants - do not break these
@@ -34,7 +40,9 @@ skill/architecture-review/
 
 **Section numbers in `rules.md` are stable citation anchors.** Everything cites them. Add sections; never renumber.
 
-**Read-only.** The skill never modifies a file in the reviewed project and never installs into it. No review phase fixes anything - `findings.json` is the hand-off to a separate, scoped session. This was a deliberate v1 decision: cross-boundary refactoring is fragile at current context lengths, and a broken build destroys the trust a rigorous assessment earns. `refactor` mode (`references/refactor-protocol.md`) is that separate session, built to answer the reasoning rather than ignore it: one gated finding per run, a green baseline, characterization tests where coverage is missing, an approval gate before any edit, undo on a red step, and proof from the same measurement that produced the finding. Do not add a fix phase to the review modes, and do not loosen those refactor gates, without revisiting that reasoning.
+**Read-only.** The skill never modifies a file in the reviewed project and never installs into it. No review phase fixes anything - `findings.json` is the hand-off to a separate, scoped session. This was a deliberate v1 decision: cross-boundary refactoring is fragile at current context lengths, and a broken build destroys the trust a rigorous assessment earns. `refactor` mode (`references/refactor-protocol.md`) is that session, built to answer the reasoning rather than ignore it: finding-driven only, one gated finding per run, a discovery search before planning (the finding's `search_directive`), a green baseline, characterization tests where coverage is missing, an approval gate before any edit, undo on a red step, and proof from the same measurement that produced the finding. Do not add a fix phase to the review modes, and do not loosen those refactor gates, without revisiting that reasoning.
+
+**Every finding carries a `search_directive`** (`rules.md` §6). It is what makes the refactor session search for the right things instead of rediscovering them. Without it a finding is not refactorable, and the schema rejects it.
 
 **Output directory.** Artifacts go to `.architecture-review/` in the reviewed project - never `references/` or `Templates/`, which collide case-insensitively with the skill's own tree on Windows and macOS.
 
@@ -81,4 +89,83 @@ Then run the check - a hand-maintained mirror of a spec that changes is a bounda
 ./check-consistency.sh
 ```
 
-It verifies the router and phase table against disk, that every `references/...` path resolves, that the mirrors agree with `SKILL.md` on modes and phase range, that no mirror restates rules content, that `rules.md` still has its 9 stable anchors, and that both schemas parse.
+It verifies the router and phase table against disk, that every `references/...` path resolves, that the mirrors agree with `SKILL.md` on modes and phase range, that no mirror restates rules content, that `rules.md` still has its 9 stable anchors, that both schemas parse, and that the findings schema accepts the valid fixture and rejects the one missing `search_directive`.
+
+## Publishing changes (Git runner)
+
+This repository publishes through an operator-owned Git runner. You never run Git write commands.
+
+- Runner: `C:/Users/SamRo/agent-pr-runner-architecture/agent-pr-runner.exe`
+- Queue: `C:/Users/SamRo/agent-pr-runner-architecture/queues/architecture-review`
+
+### Rules
+
+- Never run `git add`, `commit`, `push`, `merge`, `rebase`, `reset`, `checkout -b`, `switch -c`,
+  `branch -D`, `tag`, `stash`, or `gh pr create/merge`. Read-only Git (`status`, `diff`, `log`,
+  `rev-parse`, `show`) is fine.
+- One logical change per request, one request per PR.
+- Run this repository's verification gates first, and report their real results as evidence.
+- Branch names are neutral and purpose-based: `feature/...`, `fix/...`, `docs/...`, `chore/...`.
+- Commit messages and PR titles are one line and start with a semantic type: `feat:`, `fix:`,
+  `docs:`, `chore:`, `refactor:`, `test:`, `ci:`, `build:`, `perf:`, `style:`.
+- Never put AI product names, co-author lines, "generated with" lines, or any other attribution in
+  a branch name, commit message, PR title, or PR text. The runner refuses them.
+- Never ask the operator to run Git commands for you. If the runner fails, read the receipt and
+  follow the table below.
+
+### Publishing a change
+
+1. Run the gates. Note each command and its real result.
+2. Read the current state: `git rev-parse HEAD` and `git branch --show-current`.
+3. Write a request file **outside the repository** (a temp or scratch folder), for example
+   `request.json`:
+
+```json
+{
+  "id": "fix-parser-empty-input-1",
+  "expected_head": "<full 40-character SHA from git rev-parse HEAD>",
+  "branch": "fix/parser-empty-input",
+  "create_branch": true,
+  "files": ["src/parser.rs", "tests/parser.rs"],
+  "commit_message": "fix: return an empty document for empty input",
+  "pr_title": "fix: return an empty document for empty input",
+  "summary": ["What changed and why, one point per line."],
+  "verification": [{ "check": "cargo test", "result": "212 passed" }],
+  "traceability": ["Issue, plan item, or request this change answers"]
+}
+```
+
+   - `id`: new and unique each time (letters, digits, `-`, `_`; at most 80).
+   - `create_branch: true` when starting from the base branch. To add a fix to an open PR's branch,
+     use `create_branch: false`, the same `branch`, and that branch's current HEAD.
+   - `files`: every path to stage, exactly as Git spells it, relative to the repository root. No
+     folders, no wildcards. Deleted files are listed too.
+
+4. Submit and wait (this blocks until a receipt arrives; allow up to an hour or more):
+
+```
+"C:/Users/SamRo/agent-pr-runner-architecture/agent-pr-runner.exe" submit "C:/Users/SamRo/agent-pr-runner-architecture/queues/architecture-review" <path to request.json>
+```
+
+   If your shell times out first, the request keeps running. Check it with:
+
+```
+"C:/Users/SamRo/agent-pr-runner-architecture/agent-pr-runner.exe" status "C:/Users/SamRo/agent-pr-runner-architecture/queues/architecture-review" <id>
+```
+
+5. Act on the receipt's `status`:
+
+| Status | Meaning | What you do |
+| --- | --- | --- |
+| `merged` | PR squash-merged; checkout is back on the base branch, pulled. | Report the PR URL. Start the next change from step 1. |
+| `needs_fix` | CI or the runner's local checks failed. `detail`, `failure_kind`, and `diagnostic_log` say why. | Read the log, fix the cause, rerun the gates, then submit a new request: same `branch`, `create_branch: false`, `expected_head` = current HEAD, new `id`. |
+| `error` before a commit was made | The request was refused (validation, stale HEAD, protected path). | Fix the request or the cause and submit with a new `id`. |
+| `error` after the push | Something failed after the commit reached GitHub (PR, CI wait, merge). | Submit the same request again with `resume: true`, `create_branch: false`, `files: []`, `expected_head` = current HEAD, and a new `id`. |
+| `merged_needs_refresh` | Merged, but switching back to the base branch or pulling failed. | Report it to the operator with the detail. |
+| `needs_inspection` | The runner stopped mid-request. | Stop and report to the operator. Do not resubmit. |
+
+### Operator-only paths
+
+The runner refuses to stage CI workflows, `.git*` files, `CODEOWNERS`, and the extra paths in its
+config. If a change needs one of them, write the proposed content to a file outside the repository
+and ask the operator to apply it.

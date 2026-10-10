@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.1",
+  "generated": "2026-10-10T12:00:00Z",
+  "mode": "standard",
+  "fix_order": ["ARCH-001"],
+  "project": {
+    "name": "fixture-shop",
+    "type": "backend-service",
+    "tier": "T2",
+    "tier_reasoning": "Fixture: two deployables, about 14k lines.",
+    "languages": ["TypeScript"],
+    "domains_loaded": ["backend-service", "vibecoded-app"],
+    "asserted_architecture": null
+  },
+  "coverage": {
+    "history_window_days": 365,
+    "measured": [
+      {
+        "measurement": "import graph and fan-in",
+        "tool": "madge",
+        "version": "fixture",
+        "ran": true,
+        "fallback_used": null,
+        "note": "Fixture entry for schema validation only."
+      }
+    ],
+    "reasoned": ["Fixture entry for schema validation only."],
+    "not_reached": ["Fixture entry for schema validation only."]
+  },
+  "findings": [
+    {
+      "id": "ARCH-001",
+      "title": "Read paid orders from two stores",
+      "category": "data-flow-gap",
+      "locations": [
+        { "path": "src/reports/revenue.ts", "start_line": 10, "end_line": 24 }
+      ],
+      "blast_radius": { "value": "Moderate", "provenance": "measured", "basis": "3 of 9 modules touch the concept" },
+      "change_frequency": { "value": "Hot", "provenance": "measured", "basis": "14 commits in 90 days" },
+      "remediation_cost": { "value": "Medium", "provenance": "judged", "basis": "2 files, 1 test file" },
+      "severity": "High",
+      "priority": "Fix now",
+      "confidence": "Medium",
+      "ceiling_applied": ["C2"],
+      "evidence": [
+        {
+          "tag": "tool",
+          "command": "rg -n \"orders_paid\" src",
+          "content": "src/reports/revenue.ts:12: const paid = db.orders_paid.sum()"
+        },
+        {
+          "tag": "read",
+          "content": "src/reports/revenue.ts:10-24 reads only orders_paid and is named TotalRevenue"
+        }
+      ],
+      "cost_demonstrated": {
+        "kind": "historical",
+        "detail": "Fixture: a revenue total that omits the guest store."
+      },
+      "gate": {
+        "g1_coordinates": "pass",
+        "g2_cost": "a: historical, one revenue figure already disagreed with the dashboard",
+        "g3_fix_vs_problem": "pass: one shared read function",
+        "g4_rationale": "none evident",
+        "g5_proportionate": "T2: a single shared function is proportionate"
+      },
+      "whats_wrong": "The revenue total reads one of two order stores.",
+      "why_it_costs": "The total and the orders dashboard disagree by the guest-order amount.",
+      "recommendation": "Route both readers through one function in src/orders/paidOrders.ts.",
+      "status": "Open",
+      "search_directive": {
+        "question": "Which modules read paid orders, from either store?",
+        "commands": [
+          "git grep -n -E \"orders_paid|guest_orders\" -- src",
+          "git grep -n -E \"paidOrders|getPaid\" -- src tests"
+        ],
+        "expect": "Review saw 2 readers (revenue.ts, orders-dashboard.ts). A third reader means the finding is wider. Zero readers means it may be stale."
+      }
+    }
+  ]
+}

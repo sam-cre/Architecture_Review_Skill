@@ -28,6 +28,8 @@ The order to fix things is rarely the order of their severity.
 
 Produce a short ordered list for the *Fix now* and *Plan it* groups only. The other groups do not need sequencing.
 
+Write that list into `findings.json` as `fix_order` (schema 1.1). It is the file's order, not a second copy of the report's. Refactor mode reads it to choose the next finding, so an order that exists only in the Markdown is an order the refactor session cannot see.
+
 ---
 
 ## 3. Group the output

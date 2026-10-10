@@ -56,7 +56,7 @@ Determine the mode before Phase 0. Default is `standard`.
 | `deep` | 0–7 | Same phases, wider: full history window, every available tool, all matching domain guides, 5–8 change scenarios instead of 3. |
 | `pr` | 0 (light), 2, 3, 5, 7 | Scoped to a diff. Does *this change* move the architecture in a good direction? Scope Phases 2–3 to changed files plus their direct dependents. |
 | `diff` | - | Re-review against a prior run. Read `references/differential-protocol.md`. |
-| `refactor` | - | Apply one finding from a prior run's `findings.json`, behavior-preserving, after approval. Read `references/refactor-protocol.md`. |
+| `refactor` | - | Apply one finding from a prior run's `findings.json` (schema 1.1), in `fix_order`. Searches what the finding touches first (its `search_directive`), then behavior-preserving steps after approval. Read `references/refactor-protocol.md`. |
 
 The review modes never modify the project. `refactor` is the separate, scoped session the Phase 7 JSON hands off to: one finding per run, behind an approval gate, with green tests before and after.
 

@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.1",
+  "generated": "2026-10-10T12:00:00Z",
+  "mode": "standard",
+  "project": {
+    "name": "fixture-shop",
+    "type": "backend-service",
+    "tier": "T2",
+    "languages": ["TypeScript"]
+  },
+  "coverage": {
+    "history_window_days": 365,
+    "measured": [],
+    "reasoned": ["Negative fixture: this file must FAIL validation."],
+    "not_reached": []
+  },
+  "findings": [
+    {
+      "id": "ARCH-001",
+      "title": "Read paid orders from two stores",
+      "category": "data-flow-gap",
+      "locations": [
+        { "path": "src/reports/revenue.ts", "start_line": 10, "end_line": 24 }
+      ],
+      "blast_radius": { "value": "Moderate", "provenance": "measured", "basis": "fixture" },
+      "change_frequency": { "value": "Hot", "provenance": "measured", "basis": "fixture" },
+      "remediation_cost": { "value": "Medium", "provenance": "judged", "basis": "fixture" },
+      "severity": "High",
+      "priority": "Fix now",
+      "confidence": "Medium",
+      "evidence": [
+        { "tag": "read", "content": "src/reports/revenue.ts:10-24" }
+      ],
+      "cost_demonstrated": { "kind": "historical", "detail": "fixture" },
+      "gate": {
+        "g1_coordinates": "pass",
+        "g2_cost": "a",
+        "g3_fix_vs_problem": "pass",
+        "g4_rationale": "none evident",
+        "g5_proportionate": "T2"
+      },
+      "whats_wrong": "fixture",
+      "why_it_costs": "fixture",
+      "recommendation": "fixture",
+      "status": "Open"
+    }
+  ]
+}
